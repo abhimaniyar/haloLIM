@@ -212,7 +212,7 @@ def plot_alpha_freq_z(exp, mass, zs):
             driver_uni = cosmo_var_iv(mass, z, do_powerspec)
             cibmean = I_nu_cib(driver, driver_uni)
             # alpha = cibmean.alpha()
-            alpha = cibmean.alpha(nuarray)
+            alpha = cibmean.alpha()
             col = plt.cm.rainbow(i_z/float(nz))
             ax.plot(nuarray, alpha, c=col, label=r'$z_s = %s$' % (zs[i_z]))
 
@@ -235,6 +235,6 @@ def plot_alpha_freq_z(exp, mass, zs):
 
 zs = np.array([0.02, 0.5, 1.5, 3., 5.])
 # zs = np.array([0.5])  # , 1.5, 3., 5.])
-plot_alpha_freq_z(exp, mass, zs)
+# plot_alpha_freq_z(exp, mass, zs)
 
 print(time.time()-time0)
