@@ -149,7 +149,8 @@ class cosmo_var_iv(object):
         fact = (a*f*H_z/c_light)**2
         fact *= 1./3
         pk = self.pkinterpz(z)
-        integrand = self.k[:, None]*pk/(2*np.pi**2)
+        integrand = pk/(2*np.pi**2)
+        # integrand *= self.k[:, None]
         res = intg.simps(integrand, x=self.k, axis=0, even='avg')
         res *= fact
         return res
