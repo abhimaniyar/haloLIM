@@ -3,17 +3,14 @@
 from headers_constants import *
 
 
-class cosmo_var_iv(object):
+class cosmo_var(object):
 
-    def __init__(self, mass, z, do_powerspec):  # , ell):
+    def __init__(self, mass, z):  # , ell):
         self.mass = mass
         self.z = z
         # self.ell = ell
 
-        nm = len(self.mass)
-        nz = len(self.z)
-
-        deltah_cib = 200.
+        self.deltah = 200.
         # ########## reading in the matter power spectra #############
         redshifts = np.loadtxt('data_files/redshifts.txt')
         nr = len(redshifts)
@@ -21,8 +18,8 @@ class cosmo_var_iv(object):
 
         if min(self.z) < min(redshifts) or max(self.z) > max(redshifts):
             print ("If the redshift range is outside of [%s to %s], then " +
-                   "values of the matter power spectrum and effective " +
-                   "CIB SEDs are extrapolated and might be incorrect.") % (min(redshifts), max(redshifts))
+                   "values of the matter power spectrum " +
+                   "is extrapolated and might be incorrect.") % (min(redshifts), max(redshifts))
         ll = [str(x) for x in range(1, 211)]
         addr = 'data_files/matter_power_spectra'
         pkarray = np.loadtxt('%s/test_highk_lin_matterpower_210.dat' % (addr))
@@ -32,35 +29,23 @@ class cosmo_var_iv(object):
             pkarray = np.loadtxt("%s/test_highk_lin_matterpower_%s.dat" % (addr, ll[209-i]))
             self.Pk[:, i] = pkarray[:, 1]/cosmo.h**3
 
-        # pkinterp2d = RectBivariateSpline(k, redshifts, Pk)
-        # pkinterpk = interp1d(k, Pk.T, kind='linear', bounds_error=False, fill_value=0.)
-        # pkinterpz = interp1d(redshifts, Pk, kind='linear', bounds_error=False, fill_value=0.)
         self.pkinterpz = interp1d(redshifts, self.Pk, kind='linear', bounds_error=False, fill_value="extrapolate")
         # self.pkinterpk = interp1d(k, Pk.T, kind='linear', bounds_error=False, fill_value="extrapolate")
 
-        """
-        self.k_array = np.zeros((len(self.ell), len(self.z)))
-        self.Pk_int = np.zeros(self.k_array.shape)
-        chiz = cosmo.comoving_distance(self.z).value
-        for i in range(len(self.ell)):
-            self.k_array[i, :] = self.ell[i]/chiz
-            for j in range(len(self.z)):
-                pkz = pkinterpz(self.z[j])
-                self.Pk_int[i, j] = np.interp(self.k_array[i, j], k, pkz)
-        """
-
-        # ######## hmf, bias, nfw ###########
+    # ######## hmf, bias, nfw ###########
+    def hmf(self):
         print ("Calculating the halo mass function " +
                "for given mass and redshift for CIB mean calculations.")
-
-        self.hmf = np.zeros((nm, nz))
-        delta_h = deltah_cib
+        nm = len(self.mass)
+        nz = len(self.z)
+        hmfmz = np.zeros((nm, nz))
+        delta_h = self.deltah
 
         for r in range(nz):
             pkz = self.pkinterpz(self.z[r])
             instance = hmf_unfw_bias.h_u_b(self.k, pkz, self.z[r],
                                            cosmo, delta_h, self.mass)
-            self.hmf[:, r] = instance.dn_dlogm()
+            hmfmz[:, r] = instance.dn_dm()
         """
         for r in range(nr):
             instance = hmf_unfw_bias.h_u_b(k, Pk[:, r], redshifts[r],
@@ -69,22 +54,40 @@ class cosmo_var_iv(object):
         self.hmf_r = interp1d(redshifts, hmfr, kind='linear',
                               bounds_error=False, fill_value=0.)
         """
+        return hmfmz
 
-        if do_powerspec == 1:
-            self.nfw_u = np.zeros((nm, len(self.k), nr))
-            self.bias_m_z = np.zeros((nm, nr))
-            for r in range(nr):
-                instance = hmf_unfw_bias.h_u_b(self.k, self.Pk[:, r],
-                                               redshifts[r],
-                                               cosmo, delta_h, self.mass)
-                self.nfw_u[:, :, r] = instance.nfwfourier_u()
-                self.bias_m_z[:, r] = instance.b_nu()
+    def nfw_u(self):
+        """
+        nfwaddr = addr+'/cib_hod/data/'
+        file_nfw = 'u_nfw_precalculated.fits'
+        hdulist = fits.open("%s" % (nfwaddr+file_nfw))
+        u_nfw = hdulist[0].data
+        hdulist.close()
+        """
+        nm = len(self.mass)
+        nz = len(self.z)
+        nfwu = np.zeros((nm, len(self.k), nz))
+        delta_h = self.deltah
+        for r in range(nz):
+            pkz = self.pkinterpz(self.z[r])
+            instance = hmf_unfw_bias.h_u_b(self.k, pkz,
+                                           self.z[r],
+                                           cosmo, delta_h, self.mass)
+            nfwu[:, :, r] = instance.nfwfourier_u()
+        return nfwu
 
-            """
-            self.nfw = RegularGridInterpolator((mass, k, redshifts), nfw_u)
-            self.biasmz = interp1d(redshifts, bias_m_z, kind='linear',
-                                   bounds_error=False, fill_value=0.)
-            """
+    def bias_m_z(self):
+        nm = len(self.mass)
+        nz = len(self.z)
+        biasmz = np.zeros((nm, nz))
+        delta_h = self.deltah
+        for r in range(nz):
+            pkz = self.pkinterpz(self.z[r])
+            instance = hmf_unfw_bias.h_u_b(self.k, pkz,
+                                           self.z[r],
+                                           cosmo, delta_h, self.mass)
+            biasmz[:, r] = instance.b_nu()
+        return biasmz
 
     def dchi_dz(self, z):
         a = c_light/(cosmo.H0*np.sqrt(cosmo.Om0*(1.+z)**3 + cosmo.Ode0))
@@ -140,17 +143,3 @@ class cosmo_var_iv(object):
             Pk_int[i, :] = np.interp(z, self.zpk, pk1[i, :])
 
         return Pk_int
-
-    def beta2(self, z):
-        gamma = 0.55
-        H_z = cosmo.H(z).value
-        f = (cosmo.Om(z))**gamma
-        a = 1./(1.+z)
-        fact = (a*f*H_z/c_light)**2
-        fact *= 1./3
-        pk = self.pkinterpz(z)
-        integrand = pk/(2*np.pi**2)
-        # integrand *= self.k[:, None]
-        res = intg.simps(integrand, x=self.k, axis=0, even='avg')
-        res *= fact
-        return res

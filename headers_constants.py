@@ -9,7 +9,7 @@ from numpy import log
 import scipy.constants as con
 from astropy.io import fits
 import hmf_unfw_bias
-from scipy.interpolate import UnivariateSpline, interp1d, interp2d, RectBivariateSpline, RegularGridInterpolator
+from scipy.interpolate import UnivariateSpline, interp1d
 from scipy import special
 import matplotlib.pyplot as plt
 
