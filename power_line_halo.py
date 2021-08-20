@@ -262,3 +262,55 @@ class power_halo:
         result = result1*convfac**2*b**2
         return result
     """
+
+if __name__ == '__main__':
+    import time
+    import cosmo_related
+    import input_var
+
+    time0 = time.time()
+    logmass1 = np.arange(6, 15.005, 0.1)
+    logmass = np.arange(10, 14.705, 0.1)  # SAM
+    # logmass = np.arange(10, 13.105, 0.1)
+    # logmass = np.loadtxt('halo_cat/halomass_SAM_log10.txt')
+    mass1 = 10**logmass1
+    mass = 10**logmass
+    z = np.array([3.0])
+
+    line_name = '[CII]'  # [CII] or CO10
+
+    model = 'Schaerer_20'
+    """
+    Choose model name for a given line from following list
+    # cii_modelnames: Silva_15, Chung_20, Schaerer_20
+    # co_modelname: Li_16, Lidz_11, Righi_08
+    """
+    
+    # strfig = "allcomponents_lognormal_sigevol_1p5zcutoff_nolens_onlyautoshotpar_no3000_gaussian600n857n1200_planck_spire_hmflog10.txt"
+    strfig = "allcomponents_lognormal_sigevol_1p5zcutoff_nospire_fcpl_onlyautoshotpar_no3000_gaussian600n857n1200_planck_spire_hmflog10.txt"
+    
+    cibres = "data_files/one_halo_bestfit_"+strfig
+    # clres = np.loadtxt('data/%s.txt' % (string))
+    linedir = {'name': line_name,
+               'cibpar_resfile': cibres}
+
+    datavar = input_var.data_var_iv(linedir)
+    cosmovar = cosmo_related.cosmo_var(mass, z)
+    powerhalo = power_halo(datavar, cosmovar)
+    sfr = powerhalo.sfr(mass1)
+
+    fig = plt.figure(figsize=(11.5, 7))
+    ax = fig.add_subplot(111)
+
+    ax.plot(mass1, sfr[:, 0])
+
+    # ax.legend(fontsize='18')  # , bbox_to_anchor=(0.38, 0.45))  # , labelspacing=0.1)
+    # ax.set_xscale('log')
+    # ax.set_yscale('log', nonposy='mask')
+    ax.set_xlabel(r'$M_h$', fontsize=24)
+    ax.set_ylabel(r'$SFR$', fontsize=26)
+    # ax.set_ylim((1e-10))  # , 4.e-6))
+    # ax.set_xlim((5., 2.e3))
+    ax.tick_params(axis='both', labelsize=20)
+    plt.show()
+    print(time.time()-time0)
