@@ -3,7 +3,7 @@ import power_line_halo
 import cosmo_related
 import input_var
 
-# z = 2.2
+# z = 2.3
 logmass1 = np.arange(6, 15.005, 0.1)
 logmass = np.arange(10, 14.705, 0.1)  # SAM
 # logmass = np.arange(10, 13.105, 0.1)
