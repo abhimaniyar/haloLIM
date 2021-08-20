@@ -342,7 +342,7 @@ class h_u_b:
     """
 
 # ######################## halo bias b(m, z) ###########################
-# Tinker at al. 2010
+# Tinker at al. 2010: https://arxiv.org/pdf/1001.3162.pdf
 
     def b_nu(self):
         delta = self.delta_halo()

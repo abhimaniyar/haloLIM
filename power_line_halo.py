@@ -43,6 +43,10 @@ class power_halo:
         return a
 
     def Mdot(self, mhalo):
+        """
+        halo mass accretion rate relation from Fakhouri 2010 et al.
+        Mean and median relation provided, we use mean.
+        """
         use_mean = True
         if use_mean:
             a = 46.1*(1 + 1.11*self.z) * \
@@ -56,6 +60,9 @@ class power_halo:
             return np.outer(b, a)
 
     def sfr(self, mhalo):
+        """
+        sfr = sfr_mhdot*mhdot*baryon fraction
+        """
         sfrmhdot = self.sfr_mhdot(mhalo)
         mhdot = self.Mdot(mhalo)
         f_b = cosmo.Ob(self.z)/cosmo.Om(self.z)
@@ -146,7 +153,7 @@ class power_halo:
                 result = 3.7e3*self.sfr(self.mh)
                 return result
 
-    def rho_L(self, mod):
+    def rho_L(self, mod):  # luminosity density
         # note here that hmf is dn_dm and not dn_dlogm as we normally use
         L_c = self.L_line(mod)
         # print (self.dndm)
@@ -165,7 +172,7 @@ class power_halo:
         I_c = rhoL_c*b*convfac
         return I_c
 
-    def beff(self, mod):
+    def beff(self, mod):  # effective bias
         hmf = self.dndm
         bmz = self.biasmz
         L = self.L_line(mod)
@@ -180,7 +187,7 @@ class power_halo:
     def Pclust(self, mod):
         """
         units for I => Jy/sr
-        Thus units for Pclust = (Jy/sr)^2 MPc^3
+        Thus units for Pclust = (Jy/sr)^2 Mpc^3
         """
         Plin = self.uni.pkinterpz(self.z)
         I2 = (self.I_line(mod))**2
@@ -263,6 +270,7 @@ class power_halo:
         return result
     """
 
+
 if __name__ == '__main__':
     import time
     import cosmo_related
@@ -297,7 +305,8 @@ if __name__ == '__main__':
     datavar = input_var.data_var_iv(linedir)
     cosmovar = cosmo_related.cosmo_var(mass, z)
     powerhalo = power_halo(datavar, cosmovar)
-    sfr = powerhalo.sfr(mass1)
+    # sfr = powerhalo.sfr(mass1)
+    Pclust = powerhalo.Pclust(mod)[:, 0]
 
     fig = plt.figure(figsize=(11.5, 7))
     ax = fig.add_subplot(111)

@@ -1,5 +1,5 @@
 import numpy as np
-import glob
+# import glob
 from numpy import sin, cos
 from astropy.cosmology import Planck15
 import scipy.integrate as intg
@@ -8,7 +8,6 @@ from scipy.special import *
 from numpy import log
 import scipy.constants as con
 from astropy.io import fits
-import hmf_unfw_bias
 from scipy.interpolate import UnivariateSpline, interp1d
 from scipy import special
 import matplotlib.pyplot as plt

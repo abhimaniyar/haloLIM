@@ -35,7 +35,7 @@ class cosmo_var(object):
     # ######## hmf, bias, nfw ###########
     def hmf(self):
         print ("Calculating the halo mass function " +
-               "for given mass and redshift for CIB mean calculations.")
+               "for given mass and redshift using Tinker 2008 formalism.")
         nm = len(self.mass)
         nz = len(self.z)
         hmfmz = np.zeros((nm, nz))
@@ -57,6 +57,8 @@ class cosmo_var(object):
         return hmfmz
 
     def nfw_u(self):
+        print ("Calculating the Fourier transform of the NFW profile " +
+               "for given mass, wavenumbers, and redshift.")
         """
         nfwaddr = addr+'/cib_hod/data/'
         file_nfw = 'u_nfw_precalculated.fits'
@@ -77,6 +79,8 @@ class cosmo_var(object):
         return nfwu
 
     def bias_m_z(self):
+        print ("Calculating the halo bias " +
+               "for given mass and redshift using Tinker 2010 formalism.")
         nm = len(self.mass)
         nz = len(self.z)
         biasmz = np.zeros((nm, nz))

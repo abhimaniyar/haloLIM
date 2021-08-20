@@ -3,14 +3,40 @@ import power_line_halo
 import cosmo_related
 import input_var
 
-# z = 2.3
-logmass1 = np.arange(6, 15.005, 0.1)
-logmass = np.arange(10, 14.705, 0.1)  # SAM
-# logmass = np.arange(10, 13.105, 0.1)
-# logmass = np.loadtxt('halo_cat/halomass_SAM_log10.txt')
-mass1 = 10**logmass1
-mass = 10**logmass
-z = np.array([3.0])
+"""
+Some warnings/advice:
+1. As of now, the code calculates the clustering and shot-noise
+spehrically averaged power spectrum for [CII] and CO2-1 lines
+using some recipies (SFR to L_{[CII]} or L_{CO}) available.
+The SFR required is calculated using the best fit parameterization
+of Maniyar 2021 et al. which was developed for a CIB halo model.
+
+2. In the current version of the code, we do not do a full halo-model
+calculation. We just divide the power spectra in th clustering and
+shot noise terms. However, it is pretty straightforward to implement
+the halo model formalism and get the power spectra as 1-halo, 2-halo,
+and shot noise terms.
+
+3. It has to be noted that currently the code is written such that it
+calculates P(k, z) for several redshifts at the same time. Thus, if you
+give only one redshift value as an input, the clustering power spectrum
+will come out with the shape (len(k), 1). On the other hand, shot noise
+is just a number for every redshift and not an array.
+
+4. If you want to run the code several times, or in a MCMC run, or just
+in general want to speed up the calculations, pre-calculate and store
+the halo mass function for a given mass and redshift range and then
+just interpolate for the required mass and redshift ranges. Same
+argument applicable to halo bias and especially the Fourier transform
+of the NFW profile if you want to use the full halo model formalism.
+
+"""
+
+logmass = np.arange(6, 15.005, 0.1)
+mass = 10**logmass1
+# logmass1 = np.arange(10, 14.705, 0.1)  # SAM
+# mass1 = 10**logmass1
+z = np.array([3.0, 4.0])
 
 line_name = '[CII]'  # [CII] or CO10
 
@@ -21,11 +47,11 @@ Choose model name for a given line from following list
 # co_modelname: Li_16, Lidz_11, Righi_08
 """
 
+# location for the best fit value of the lognormal parameterization for SFR
 strfig = "allcomponents_lognormal_sigevol_1p5zcutoff_nolens_onlyautoshotpar_no3000_gaussian600n857n1200_planck_spire_hmflog10.txt"
 # strfig = "allcomponents_lognormal_sigevol_1p5zcutoff_nospire_fcpl_onlyautoshotpar_no3000_gaussian600n857n1200_planck_spire_hmflog10.txt"
 
 cibres = "data_files/one_halo_bestfit_"+strfig
-# clres = np.loadtxt('data/%s.txt' % (string))
 linedir = {'name': line_name,
            'cibpar_resfile': cibres}
 
@@ -40,7 +66,7 @@ def plot_Pk(line, mod):
     # print (np.shape(powerhalo.Pshot(mod)))
     Pclust = interp1d(cosmovar.k, powerhalo.Pclust(mod)[:, 0], kind='linear',
                       bounds_error=False, fill_value=0.)
-    Pshot = powerhalo.Pshot(mod)
+    Pshot = powerhalo.Pshot(mod)[0]
 
     # P_clust = powerhalo.Pclust(mod)(k_plot)
     # P_shot = powerhalo.Pshot(mod)(k_plot)
