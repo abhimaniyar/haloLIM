@@ -39,6 +39,6 @@ driver.py file:
 ```
 python driver.py
 ```
-
+If you use this code in a publication, please cite https://arxiv.org/abs/2006.16329.
 If you have any comments, suggestions or questions, please do not hesitate
 to contact me: abhishek.maniyar@nyu.edu
