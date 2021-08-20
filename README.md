@@ -5,7 +5,7 @@ and CO(1-0) lines
 
 Some warnings/advice:
 * As of now, the code calculates the clustering and shot-noise
-spherically averaged power spectrum for [CII] and CO2-1 lines
+spherically averaged power spectrum for [CII] and CO(1-0) lines
 using some recipes (SFR to L_{[CII]} or L_{CO}) available.
 The SFR required is calculated using the best fit parameterization
 of Maniyar 2021 et al. (https://arxiv.org/pdf/2006.16329.pdf)
