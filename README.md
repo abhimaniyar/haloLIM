@@ -1,7 +1,7 @@
 # haloLIM
 
 Code to calculate the spherically averaged power spectrum for [CII]
-and CO(2-1) lines
+and CO(1-0) lines
 
 Some warnings/advice:
 * As of now, the code calculates the clustering and shot-noise
