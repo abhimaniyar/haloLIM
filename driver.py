@@ -4,7 +4,7 @@ import cosmo_related
 import input_var
 
 logmass = np.arange(6, 15.005, 0.1)
-mass = 10**logmass1
+mass = 10**logmass
 # logmass1 = np.arange(10, 14.705, 0.1)  # SAM
 # mass1 = 10**logmass1
 z = np.array([3.0, 4.0])
